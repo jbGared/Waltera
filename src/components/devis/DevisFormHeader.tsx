@@ -1,6 +1,6 @@
 /**
  * Section des informations générales du devis
- * Gamme, Adresse, Date d'effet, Commission
+ * Produit, Adresse, Date d'effet, Commission
  */
 
 import { memo } from 'react';
@@ -20,17 +20,17 @@ function DevisFormHeader({ onAddressChange }: DevisFormHeaderProps) {
 
   return (
     <div className="space-y-4">
-      {/* Gamme */}
+      {/* Sélectionner un produit */}
       <div className="space-y-2">
         <Label htmlFor="gamme" className="text-gray-700 font-medium">
-          Gamme <span className="text-red-500">*</span>
+          Sélectionner un produit <span className="text-red-500">*</span>
         </Label>
         <Select
           value={formData.gamme || undefined}
           onValueChange={(value: Gamme) => updateField('gamme', value)}
         >
           <SelectTrigger id="gamme" className="border-gray-300">
-            <SelectValue placeholder="Sélectionnez une gamme..." />
+            <SelectValue placeholder="Sélectionnez un produit..." />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="SANTE_SENIORS">Santé Seniors</SelectItem>
