@@ -3,12 +3,20 @@
  * Affiche le résultat du calcul et les détails
  */
 
-import { memo, useState } from 'react';
-import { Calculator, Loader2, Mail } from 'lucide-react';
+import { memo, useMemo } from 'react';
+import { Calculator, Loader2, Mail, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useDevisContext } from '@/contexts/DevisContext';
+
+// Type pour un bénéficiaire affiché
+interface BeneficiaireDisplay {
+  prenom: string;
+  nom: string;
+  qualite: string;
+  age: number;
+}
 
 // Fonction pour formater les prix à la française
 function formatPrixFR(prix: number): string {
@@ -73,10 +81,61 @@ const garantiesParOption: Record<number, Array<{ categorie: string; details: str
 };
 
 function RecapitulatifPanel() {
-  const { devis, isLoading, formData } = useDevisContext();
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(undefined);
+  const { devis, isLoading, formData, hasConjoint } = useDevisContext();
 
   const garanties = garantiesParOption[formData.option] || [];
+
+  // Construire la liste des bénéficiaires avec leurs informations
+  const beneficiaires = useMemo((): BeneficiaireDisplay[] => {
+    if (!devis) return [];
+
+    const result: BeneficiaireDisplay[] = [];
+
+    // Assuré principal
+    if (formData.assurePrenom && formData.assureNom) {
+      const assureDetail = devis.details.find(d =>
+        d.beneficiaire.includes('Assuré')
+      );
+      if (assureDetail) {
+        result.push({
+          prenom: formData.assurePrenom,
+          nom: formData.assureNom,
+          qualite: 'Assuré',
+          age: assureDetail.age,
+        });
+      }
+    }
+
+    // Conjoint
+    if (hasConjoint && formData.conjointPrenom && formData.conjointNom) {
+      const conjointDetail = devis.details.find(d =>
+        d.beneficiaire === 'Conjoint'
+      );
+      if (conjointDetail) {
+        result.push({
+          prenom: formData.conjointPrenom,
+          nom: formData.conjointNom,
+          qualite: 'Conjoint',
+          age: conjointDetail.age,
+        });
+      }
+    }
+
+    // Enfants
+    const enfantDetails = devis.details.filter(d => d.beneficiaire === 'Enfant');
+    formData.enfants.forEach((enfant, index) => {
+      if (enfant.prenom && enfant.nom && enfantDetails[index]) {
+        result.push({
+          prenom: enfant.prenom,
+          nom: enfant.nom,
+          qualite: 'Enfant',
+          age: enfantDetails[index].age,
+        });
+      }
+    });
+
+    return result;
+  }, [devis, formData, hasConjoint]);
 
   // Ne rien afficher si pas de devis calculé
   if (!devis) {
@@ -118,47 +177,78 @@ function RecapitulatifPanel() {
                     </p>
                   </div>
 
-                  {/* Informations */}
+                  {/* Accordéons détails */}
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-sm text-gray-600">Bénéficiaires</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {devis.details.length} personne{devis.details.length > 1 ? 's' : ''}
-                      </span>
-                    </div>
-                  </div>
+                    {/* Accordéon bénéficiaires */}
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="border rounded-lg"
+                    >
+                      <AccordionItem value="beneficiaires" className="border-0">
+                        <AccordionTrigger className="px-4 hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-[#407b85]" />
+                            <span className="text-sm font-medium">
+                              Bénéficiaires ({beneficiaires.length})
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="space-y-2">
+                            {beneficiaires.map((beneficiaire, index) => (
+                              <div
+                                key={index}
+                                className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                              >
+                                <div className="flex justify-between items-start mb-1">
+                                  <div className="font-medium text-sm text-[#407b85]">
+                                    {beneficiaire.prenom} {beneficiaire.nom}
+                                  </div>
+                                  <span className="text-xs bg-[#407b85]/10 text-[#407b85] px-2 py-0.5 rounded-full font-medium">
+                                    {beneficiaire.qualite}
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                  {beneficiaire.age} ans
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
 
-                  {/* Détail des garanties principales */}
-                  <Accordion
-                    type="single"
-                    collapsible
-                    value={accordionValue}
-                    onValueChange={setAccordionValue}
-                    className="border rounded-lg"
-                  >
-                    <AccordionItem value="details" className="border-0">
-                      <AccordionTrigger className="px-4 hover:no-underline">
-                        <span className="text-sm font-medium">Détail des garanties principales</span>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-4">
-                        <div className="space-y-2">
-                          {garanties.map((garantie, index) => (
-                            <div
-                              key={index}
-                              className="bg-gray-50 rounded-lg p-3 border border-gray-200"
-                            >
-                              <div className="font-medium text-sm text-[#407b85] mb-1">
-                                {garantie.categorie}
+                    {/* Accordéon garanties */}
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="border rounded-lg"
+                    >
+                      <AccordionItem value="garanties" className="border-0">
+                        <AccordionTrigger className="px-4 hover:no-underline">
+                          <span className="text-sm font-medium">Détail des garanties principales</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="space-y-2">
+                            {garanties.map((garantie, index) => (
+                              <div
+                                key={index}
+                                className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                              >
+                                <div className="font-medium text-sm text-[#407b85] mb-1">
+                                  {garantie.categorie}
+                                </div>
+                                <div className="text-xs text-gray-600 leading-relaxed">
+                                  {garantie.details}
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-600 leading-relaxed">
-                                {garantie.details}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
 
                   {/* Bouton d'envoi */}
                   <Button className="w-full bg-[#407b85] hover:bg-[#407b85]/90">
