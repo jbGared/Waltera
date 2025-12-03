@@ -1,15 +1,27 @@
 import { Route, Routes, Navigate } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
-import Login from './Login'
-import Dashboard from './Dashboard'
-import Tarificateur from './Tarificateur'
-import Conversations from './Conversations'
-import ChatContrats from './ChatContrats'
-import ChatConventions from './ChatConventions'
-import AnalyseFichiers from './AnalyseFichiers'
-import Profile from './Profile'
-import Admin from './Admin'
+
+// Lazy load pages for code splitting
+const Login = lazy(() => import('./Login'))
+const Dashboard = lazy(() => import('./Dashboard'))
+const Tarificateur = lazy(() => import('./Tarificateur'))
+const Conversations = lazy(() => import('./Conversations'))
+const ChatContrats = lazy(() => import('./ChatContrats'))
+const ChatConventions = lazy(() => import('./ChatConventions'))
+const AnalyseFichiers = lazy(() => import('./AnalyseFichiers'))
+const Profile = lazy(() => import('./Profile'))
+const Admin = lazy(() => import('./Admin'))
+
+// Loading fallback component
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  )
+}
 
 function RootRedirect() {
   const { user, isLoading } = useAuth();
@@ -23,22 +35,24 @@ function RootRedirect() {
 
 export default function Pages() {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<Login />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
 
-      {/* Redirect root based on auth status */}
-      <Route path="/" element={<RootRedirect />} />
+        {/* Redirect root based on auth status */}
+        <Route path="/" element={<RootRedirect />} />
 
-      {/* Protected routes */}
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/tarificateur" element={<ProtectedRoute><Tarificateur /></ProtectedRoute>} />
-      <Route path="/chat/contrats" element={<ProtectedRoute><ChatContrats /></ProtectedRoute>} />
-      <Route path="/chat/conventions" element={<ProtectedRoute><ChatConventions /></ProtectedRoute>} />
-      <Route path="/analyse" element={<ProtectedRoute><AnalyseFichiers /></ProtectedRoute>} />
-      <Route path="/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-    </Routes>
+        {/* Protected routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/tarificateur" element={<ProtectedRoute><Tarificateur /></ProtectedRoute>} />
+        <Route path="/chat/contrats" element={<ProtectedRoute><ChatContrats /></ProtectedRoute>} />
+        <Route path="/chat/conventions" element={<ProtectedRoute><ChatConventions /></ProtectedRoute>} />
+        <Route path="/analyse" element={<ProtectedRoute><AnalyseFichiers /></ProtectedRoute>} />
+        <Route path="/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+      </Routes>
+    </Suspense>
   )
 }

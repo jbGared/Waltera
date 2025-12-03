@@ -87,7 +87,7 @@ function RecapitulatifPanel() {
     <>
       {/* Desktop : sticky à droite */}
       <div className="hidden lg:block lg:col-span-1">
-        <div className="sticky top-6">
+        <div className="sticky top-20">
           <Card className="shadow-xl border-0 overflow-hidden">
             {/* Header avec gradient teal */}
             <CardHeader className="bg-gradient-to-r from-[#407b85] to-[#407b85]/80 text-white pb-4">
@@ -173,7 +173,7 @@ function RecapitulatifPanel() {
       </div>
 
       {/* Mobile : sticky en bas de l'écran - Version condensée */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
         <Card className="shadow-2xl border-0 rounded-t-xl rounded-b-none overflow-hidden">
           {/* Header avec gradient teal - Version compacte */}
           <div className="bg-gradient-to-r from-[#407b85] to-[#407b85]/80 px-4 py-2.5 text-white">
