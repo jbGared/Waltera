@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useDevisContext } from '@/contexts/DevisContext';
+import { isDateComplete } from '@/services/devis';
 
 // Type pour un bénéficiaire affiché
 interface BeneficiaireDisplay {
@@ -121,10 +122,15 @@ function RecapitulatifPanel() {
       }
     }
 
-    // Enfants
+    // Enfants - Filtrer de la même manière que dans buildDevisInput
+    // On ne garde que les enfants avec date de naissance complète
+    const enfantsAvecDateComplete = formData.enfants.filter(e =>
+      e.prenom && e.nom && isDateComplete(e.dateNaissance)
+    );
     const enfantDetails = devis.details.filter(d => d.beneficiaire === 'Enfant');
-    formData.enfants.forEach((enfant, index) => {
-      if (enfant.prenom && enfant.nom && enfantDetails[index]) {
+
+    enfantsAvecDateComplete.forEach((enfant, index) => {
+      if (enfantDetails[index]) {
         result.push({
           prenom: enfant.prenom,
           nom: enfant.nom,
