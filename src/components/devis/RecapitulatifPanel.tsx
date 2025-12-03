@@ -3,7 +3,7 @@
  * Affiche le résultat du calcul et les détails
  */
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Calculator, Loader2, Mail, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,6 +83,7 @@ const garantiesParOption: Record<number, Array<{ categorie: string; details: str
 
 function RecapitulatifPanel() {
   const { devis, isLoading, formData, hasConjoint } = useDevisContext();
+  const [accordionGaranties, setAccordionGaranties] = useState<string | undefined>(undefined);
 
   const garanties = garantiesParOption[formData.option] || [];
 
@@ -127,7 +128,7 @@ function RecapitulatifPanel() {
     const enfantsAvecDateComplete = formData.enfants.filter(e =>
       e.prenom && e.nom && isDateComplete(e.dateNaissance)
     );
-    const enfantDetails = devis.details.filter(d => d.beneficiaire === 'Enfant');
+    const enfantDetails = devis.details.filter(d => d.beneficiaire.startsWith('Enfant'));
 
     enfantsAvecDateComplete.forEach((enfant, index) => {
       if (enfantDetails[index]) {
@@ -229,6 +230,8 @@ function RecapitulatifPanel() {
                     <Accordion
                       type="single"
                       collapsible
+                      value={accordionGaranties}
+                      onValueChange={setAccordionGaranties}
                       className="border rounded-lg"
                     >
                       <AccordionItem value="garanties" className="border-0">
