@@ -192,7 +192,7 @@ export default function ChatBase({ config }: ChatBaseProps) {
           {/* Zone de chat principale */}
           <div className="flex-1 flex flex-col bg-white sm:rounded-lg sm:shadow-sm sm:border sm:border-gray-200 overflow-hidden min-h-0">
             {/* Header de la conversation */}
-            <div className="bg-[#f0f2f5] border-b border-gray-300 p-3 sm:p-4">
+            <div className="sticky top-0 z-10 bg-[#f0f2f5] border-b border-gray-300 p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                   {/* Bouton retour mobile (visible uniquement sur mobile) */}
