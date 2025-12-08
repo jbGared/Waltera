@@ -21,13 +21,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  FileText,
   Download,
   Search,
   Database,
   Globe,
-  AlertCircle,
-  CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 

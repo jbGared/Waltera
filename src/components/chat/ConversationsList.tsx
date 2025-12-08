@@ -118,6 +118,7 @@ export default function ConversationsList({
     try {
       const { error } = await supabase
         .from('conversations')
+        // @ts-expect-error - Type mismatch in Supabase types
         .update({ title: editingTitle.trim() })
         .eq('id', convId);
 
@@ -129,7 +130,7 @@ export default function ConversationsList({
 
       // Mettre à jour localement
       setConversations(prev =>
-        prev.map(conv =>
+        prev.map((conv: any) =>
           conv.id === convId ? { ...conv, title: editingTitle.trim() } : conv
         )
       );
@@ -149,9 +150,10 @@ export default function ConversationsList({
   const handleArchive = async () => {
     if (!conversationToArchive) return;
 
-    try {
+    try{
       const { error } = await supabase
         .from('conversations')
+        // @ts-expect-error - Type mismatch in Supabase types
         .update({ status: 'archived' })
         .eq('id', conversationToArchive);
 
@@ -162,7 +164,7 @@ export default function ConversationsList({
       }
 
       // Retirer de la liste
-      setConversations(prev => prev.filter(conv => conv.id !== conversationToArchive));
+      setConversations(prev => prev.filter((conv: any) => conv.id !== conversationToArchive));
 
       // Si c'était la conversation sélectionnée, déselectionner
       if (selectedConversationId === conversationToArchive) {

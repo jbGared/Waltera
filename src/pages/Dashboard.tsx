@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, ChevronRight, Shield, FileText, FolderTree, BookOpen, BarChart3, Calculator } from 'lucide-react';
+import { ChevronRight, Shield, FileText, BookOpen, BarChart3, Calculator } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { useProfile } from '@/hooks/useProfile';
