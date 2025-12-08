@@ -120,19 +120,19 @@ export default function ChatBase({ config }: ChatBaseProps) {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
-        {/* Header */}
-        <div className="mb-3 sm:mb-4">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-0 sm:px-4 lg:px-8 py-0 sm:py-4">
+        {/* Header - Masqué sur mobile */}
+        <div className="hidden sm:block mb-4 px-4 lg:px-0">
           <Link
             to="/dashboard"
-            className="inline-flex items-center text-gray-600 hover:text-[#407b85] mb-2 sm:mb-3 text-sm"
+            className="inline-flex items-center text-gray-600 hover:text-[#407b85] mb-3 text-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au Dashboard
           </Link>
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">{title}</h1>
-            <p className="text-sm sm:text-base text-gray-600">{description}</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{title}</h1>
+            <p className="text-base text-gray-600">{description}</p>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export default function ChatBase({ config }: ChatBaseProps) {
         )}
 
         {/* Layout principal avec sidebar */}
-        <div className="flex gap-6 h-[calc(100vh-240px)] overflow-hidden relative">
+        <div className="flex gap-0 sm:gap-6 h-[calc(100vh-64px)] sm:h-[calc(100vh-240px)] overflow-hidden relative">
           {/* Overlay mobile */}
           {isSidebarOpen && (
             <div
@@ -190,11 +190,19 @@ export default function ChatBase({ config }: ChatBaseProps) {
           </div>
 
           {/* Zone de chat principale */}
-          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden min-h-0">
+          <div className="flex-1 flex flex-col bg-white sm:rounded-lg sm:shadow-sm sm:border sm:border-gray-200 overflow-hidden min-h-0">
             {/* Header de la conversation */}
-            <div className="bg-[#f0f2f5] border-b border-gray-300 p-4">
+            <div className="bg-[#f0f2f5] border-b border-gray-300 p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  {/* Bouton retour mobile (visible uniquement sur mobile) */}
+                  <Link
+                    to="/dashboard"
+                    className="sm:hidden h-9 w-9 flex-shrink-0 flex items-center justify-center text-gray-600 hover:text-gray-900"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </Link>
+
                   {/* Bouton menu burger sur mobile */}
                   <Button
                     variant="ghost"
