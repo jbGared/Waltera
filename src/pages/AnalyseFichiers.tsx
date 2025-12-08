@@ -72,9 +72,6 @@ export default function AnalyseFichiers() {
             Retour au Dashboard
           </Link>
           <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-xl bg-purple-500 bg-opacity-10">
-              <span className="text-3xl">📊</span>
-            </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 Analyse Réseau de Fichiers

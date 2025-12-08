@@ -125,67 +125,33 @@ export default function Profile() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sidebar - Avatar et Infos Rapides */}
+        <div className="space-y-6">
+          {/* Avatar et Infos */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                {/* Avatar avec upload */}
+                <AvatarUpload
+                  currentAvatarUrl={profile?.avatar_url || null}
+                  userInitials={
+                    userData.firstName && userData.lastName
+                      ? `${userData.firstName[0]}${userData.lastName[0]}`.toUpperCase()
+                      : profile?.email?.substring(0, 2).toUpperCase() || 'U'
+                  }
+                  onAvatarChange={reload}
+                />
+
+                {/* Nom */}
+                <h2 className="text-xl font-bold text-gray-900">
+                  {userData.firstName} {userData.lastName}
+                </h2>
+                <p className="text-gray-600">{userData.role}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Cards principales */}
           <div className="space-y-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  {/* Avatar avec upload */}
-                  <AvatarUpload
-                    currentAvatarUrl={profile?.avatar_url || null}
-                    userInitials={
-                      userData.firstName && userData.lastName
-                        ? `${userData.firstName[0]}${userData.lastName[0]}`.toUpperCase()
-                        : profile?.email?.substring(0, 2).toUpperCase() || 'U'
-                    }
-                    onAvatarChange={reload}
-                  />
-
-                  {/* Nom */}
-                  <h2 className="text-xl font-bold text-gray-900">
-                    {userData.firstName} {userData.lastName}
-                  </h2>
-                  <p className="text-gray-600 mb-4">{userData.role}</p>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">-</p>
-                      <p className="text-xs text-gray-500">Conversations</p>
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900">-</p>
-                      <p className="text-xs text-gray-500">Analyses</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Menu rapide */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Raccourcis</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Link
-                  to="/conversations"
-                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <User className="w-5 h-5 text-[#407b85]" />
-                  <span className="text-sm font-medium">Mes conversations</span>
-                </Link>
-                <button className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Shield className="w-5 h-5 text-[#407b85]" />
-                  <span className="text-sm font-medium">Sécurité</span>
-                </button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
             {/* Informations Personnelles */}
             <Card>
               <CardHeader>

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FileText, MessageSquare, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { APP_CONFIG, ROUTES } from '@/constants';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,9 +37,7 @@ export default function Navbar() {
     return profile?.role || 'Consultant';
   };
 
-  const navItems = [
-    { icon: FileText, label: 'Tableau de bord', path: ROUTES.DASHBOARD },
-  ];
+  const navItems: Array<{ icon: any; label: string; path: string }> = [];
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-[#407b85] to-[#407b85]/90 shadow-lg">

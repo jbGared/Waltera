@@ -68,6 +68,13 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 200ms;
   }
+
+  /* Désactiver les transitions transform pour les dropdowns et selects */
+  [data-radix-select-content],
+  [data-radix-dropdown-menu-content],
+  [data-radix-popper-content-wrapper] {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, filter, backdrop-filter !important;
+  }
 }
 
 @layer utilities {
