@@ -28,10 +28,10 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Welcome Banner - Ultra moderne */}
         <div className="mb-16">
-          <h1 className="text-5xl font-bold mb-3 text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-bold mb-3 text-gray-900 tracking-tight">
             Bonjour Jean-Baptiste
           </h1>
-          <p className="text-xl text-gray-500 font-light">
+          <p className="text-lg text-gray-500 font-light">
             Bienvenue sur votre portail de services WALTERA
           </p>
         </div>
