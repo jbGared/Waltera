@@ -159,14 +159,14 @@ export default function ChatBase({ config }: ChatBaseProps) {
           {/* Zone de chat principale */}
           <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden min-h-0">
             {/* Header de la conversation */}
-            <div className="bg-[#f0f2f5] border-b border-gray-300 p-3 sm:p-4">
+            <div className="bg-[#f0f2f5] border-b border-gray-300 p-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                  <div className={`p-1.5 sm:p-2 rounded-full ${iconBgColor} bg-opacity-20 flex-shrink-0`}>
-                    <span className="text-base sm:text-lg">{icon}</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`p-2 rounded-full ${iconBgColor} bg-opacity-20 flex-shrink-0`}>
+                    <span className="text-lg">{icon}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                    <h3 className="font-semibold text-gray-900 text-base truncate">
                       {selectedConversationId ? `Assistant ${title}` : `Nouvelle conversation`}
                     </h3>
                     <p className="text-xs text-gray-500 hidden sm:block">
@@ -178,27 +178,27 @@ export default function ChatBase({ config }: ChatBaseProps) {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full px-4">
                   <div className="text-center max-w-md w-full">
-                    <div className="bg-white rounded-full p-4 sm:p-6 inline-block mb-3 sm:mb-4 shadow-sm">
-                      <Sparkles className="w-8 h-8 sm:w-12 sm:h-12 text-[#407b85]" />
+                    <div className="bg-white rounded-full p-6 inline-block mb-4 shadow-sm">
+                      <Sparkles className="w-12 h-12 text-[#407b85]" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {emptyStateMessage}
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">{description}</p>
+                    <p className="text-sm text-gray-600 mb-6">{description}</p>
 
                     {/* Suggestions */}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {suggestions.map((suggestion, index) => (
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(suggestion)}
-                          className="w-full p-2.5 sm:p-3 text-left text-xs sm:text-sm bg-white border border-gray-200 rounded-lg hover:border-[#407b85] hover:shadow-md transition-all"
+                          className="w-full p-3.5 text-left text-sm bg-white border border-gray-200 rounded-lg hover:border-[#407b85] hover:shadow-md transition-all"
                         >
-                          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 inline mr-2 text-[#407b85]" />
+                          <Sparkles className="w-4 h-4 inline mr-2 text-[#407b85]" />
                           {suggestion}
                         </button>
                       ))}
@@ -227,17 +227,17 @@ export default function ChatBase({ config }: ChatBaseProps) {
             </div>
 
             {/* Zone de saisie */}
-            <div className="bg-[#f0f2f5] border-t border-gray-300 p-2 sm:p-4">
-              <div className="flex items-center bg-white rounded-lg pl-1 pr-1.5 sm:pr-2 py-1 shadow-sm">
+            <div className="bg-[#f0f2f5] border-t border-gray-300 p-3 sm:p-4">
+              <div className="flex items-center bg-white rounded-lg pl-2 pr-2 py-1.5 shadow-sm">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-gray-500 hover:text-gray-700 h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0"
+                      className="text-gray-500 hover:text-gray-700 h-10 w-10 flex-shrink-0"
                       type="button"
                     >
-                      <Smile className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Smile className="w-5 h-5" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-64 p-2" align="start">
@@ -246,7 +246,7 @@ export default function ChatBase({ config }: ChatBaseProps) {
                         <button
                           key={index}
                           onClick={() => handleEmojiSelect(emoji)}
-                          className="text-xl sm:text-2xl hover:bg-gray-100 rounded p-1 transition-colors"
+                          className="text-2xl hover:bg-gray-100 rounded p-1 transition-colors"
                           type="button"
                         >
                           {emoji}
@@ -266,7 +266,7 @@ export default function ChatBase({ config }: ChatBaseProps) {
                     }
                   }}
                   placeholder={placeholder}
-                  className="flex-1 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[36px] sm:min-h-[40px] max-h-[100px] sm:max-h-[120px] px-2 py-2 sm:py-2.5 text-sm sm:text-base"
+                  className="flex-1 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[44px] max-h-[120px] px-3 py-3 text-base"
                   rows={1}
                   disabled={isLoading}
                 />
@@ -274,9 +274,9 @@ export default function ChatBase({ config }: ChatBaseProps) {
                   onClick={() => handleSendMessage()}
                   disabled={!input.trim() || isLoading}
                   size="icon"
-                  className="bg-[#407b85] hover:bg-[#407b85]/90 rounded-full h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0 ml-1.5 sm:ml-2"
+                  className="bg-[#407b85] hover:bg-[#407b85]/90 rounded-full h-10 w-10 flex-shrink-0 ml-2"
                 >
-                  <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <Send className="w-4 h-4" />
                 </Button>
               </div>
             </div>
