@@ -6,7 +6,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Send, Sparkles, AlertCircle, Smile } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, AlertCircle, Smile, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -53,6 +53,7 @@ interface ChatBaseProps {
 
 export default function ChatBase({ config }: ChatBaseProps) {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const {
@@ -94,11 +95,13 @@ export default function ChatBase({ config }: ChatBaseProps) {
   const handleSelectConversation = async (convId: string) => {
     setSelectedConversationId(convId);
     await loadConversation(convId);
+    setIsSidebarOpen(false); // Fermer la sidebar sur mobile après sélection
   };
 
   const handleNewConversation = () => {
     setSelectedConversationId(null);
     startNewConversation();
+    setIsSidebarOpen(false); // Fermer la sidebar sur mobile
   };
 
   const handleEmojiSelect = (emoji: string) => {
@@ -145,15 +148,45 @@ export default function ChatBase({ config }: ChatBaseProps) {
         )}
 
         {/* Layout principal avec sidebar */}
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-[calc(100vh-240px)] overflow-hidden">
-          {/* Sidebar des conversations - Responsive */}
-          <div className="w-full lg:w-80 flex-shrink-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-h-60 lg:max-h-none">
-            <ConversationsList
-              serviceType={config.serviceType}
-              selectedConversationId={selectedConversationId}
-              onSelectConversation={handleSelectConversation}
-              onNewConversation={handleNewConversation}
+        <div className="flex gap-6 h-[calc(100vh-240px)] overflow-hidden relative">
+          {/* Overlay mobile */}
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
             />
+          )}
+
+          {/* Sidebar des conversations - Overlay mobile, fixe desktop */}
+          <div className={`
+            fixed lg:relative top-0 lg:top-auto bottom-0 lg:bottom-auto left-0 z-50 lg:z-auto
+            w-80 lg:w-80 h-screen lg:h-auto flex-shrink-0
+            bg-white rounded-r-lg lg:rounded-lg shadow-xl lg:shadow-sm border-r lg:border border-gray-200
+            overflow-hidden flex flex-col
+            transform transition-transform duration-300 ease-in-out
+            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}>
+            {/* Bouton fermer sur mobile */}
+            <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+              <h2 className="font-semibold text-gray-900">Conversations</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(false)}
+                className="h-8 w-8"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-hidden">
+              <ConversationsList
+                serviceType={config.serviceType}
+                selectedConversationId={selectedConversationId}
+                onSelectConversation={handleSelectConversation}
+                onNewConversation={handleNewConversation}
+              />
+            </div>
           </div>
 
           {/* Zone de chat principale */}
@@ -161,7 +194,17 @@ export default function ChatBase({ config }: ChatBaseProps) {
             {/* Header de la conversation */}
             <div className="bg-[#f0f2f5] border-b border-gray-300 p-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                  {/* Bouton menu burger sur mobile */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="lg:hidden h-9 w-9 flex-shrink-0 text-gray-600 hover:text-gray-900"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </Button>
+
                   <div className={`p-2 rounded-full ${iconBgColor} bg-opacity-20 flex-shrink-0`}>
                     <span className="text-lg">{icon}</span>
                   </div>
