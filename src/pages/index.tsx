@@ -13,6 +13,8 @@ const ChatConventions = lazy(() => import('./ChatConventions'))
 const AnalyseFichiers = lazy(() => import('./AnalyseFichiers'))
 const Profile = lazy(() => import('./Profile'))
 const Admin = lazy(() => import('./Admin'))
+const CCN = lazy(() => import('./CCN'))
+const Mapping = lazy(() => import('./Mapping'))
 
 // Loading fallback component
 function PageLoader() {
@@ -52,6 +54,8 @@ export default function Pages() {
         <Route path="/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="/ccn" element={<ProtectedRoute><CCN /></ProtectedRoute>} />
+        <Route path="/mapping" element={<ProtectedRoute><Mapping /></ProtectedRoute>} />
       </Routes>
     </Suspense>
   )

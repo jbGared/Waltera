@@ -1,5 +1,6 @@
 import { BrowserRouter } from 'react-router-dom'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster as SonnerToaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ScrollToTop from '@/components/ScrollToTop'
 import ScrollToTopButton from '@/components/ScrollToTopButton'
@@ -12,6 +13,7 @@ function App() {
         <ScrollToTop />
         <Pages />
         <ScrollToTopButton />
+        <SonnerToaster />
         <Toaster />
       </AuthProvider>
     </BrowserRouter>

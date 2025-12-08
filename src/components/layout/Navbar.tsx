@@ -39,7 +39,6 @@ export default function Navbar() {
 
   const navItems = [
     { icon: FileText, label: 'Tableau de bord', path: ROUTES.DASHBOARD },
-    { icon: MessageSquare, label: 'Historique', path: ROUTES.CONVERSATIONS },
   ];
 
   return (

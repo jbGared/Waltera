@@ -12,6 +12,8 @@ export const ROUTES = {
   SETTINGS: '/settings',
   TARIFICATEUR: '/tarificateur',
   ADMIN: '/admin',
+  CCN: '/ccn',
+  MAPPING: '/mapping',
 } as const;
 
 export const SERVICES = [
@@ -19,9 +21,9 @@ export const SERVICES = [
     id: 'rag_contrats',
     title: 'Contrats Clients',
     description: 'Interrogez la base de contrats via RAG et obtenez des réponses précises sur les garanties, exclusions et conditions.',
-    icon: '📋',
-    color: '#213d65',
-    gradient: 'from-[#213d65] to-[#2d4f7c]',
+    icon: 'FileText',
+    color: '#3b82f6',
+    gradient: 'from-blue-500 to-cyan-500',
     route: ROUTES.CHAT_CONTRATS,
     tags: ['RAG', 'Contrats', 'IA'],
   },
@@ -29,19 +31,19 @@ export const SERVICES = [
     id: 'conventions_collectives',
     title: 'Conventions Collectives',
     description: 'Analysez les conventions collectives nationales et posez vos questions sur les droits, congés et classifications.',
-    icon: '📚',
-    color: '#2d4f7c',
-    gradient: 'from-[#2d4f7c] to-[#1a3050]',
-    route: ROUTES.CHAT_CONVENTIONS,
+    icon: 'BookOpen',
+    color: '#8b5cf6',
+    gradient: 'from-purple-500 to-pink-500',
+    route: ROUTES.CCN,
     tags: ['CCN', 'Analyse', 'Droit'],
   },
   {
     id: 'analyse_fichiers',
     title: 'Analyse Réseau Fichiers',
     description: 'Lancez des audits automatiques de votre réseau avec génération de rapports Gamma et export PDF.',
-    icon: '📊',
-    color: '#1a3050',
-    gradient: 'from-[#1a3050] to-[#213d65]',
+    icon: 'BarChart3',
+    color: '#10b981',
+    gradient: 'from-green-500 to-emerald-500',
     route: ROUTES.ANALYSE_FICHIERS,
     tags: ['Audit', 'Rapport', 'PDF'],
   },
@@ -49,9 +51,9 @@ export const SERVICES = [
     id: 'tarificateur',
     title: 'Tarificateur Santé',
     description: 'Calculez en temps réel le tarif d\'un contrat de complémentaire santé individuelle avec détail par bénéficiaire.',
-    icon: '💰',
-    color: '#407b85',
-    gradient: 'from-[#407b85] to-[#213d65]',
+    icon: 'Calculator',
+    color: '#f59e0b',
+    gradient: 'from-orange-500 to-amber-500',
     route: ROUTES.TARIFICATEUR,
     tags: ['Tarifs', 'Devis', 'Calcul'],
   },
@@ -82,7 +84,7 @@ export const APP_CONFIG = {
 } as const;
 
 export const WEBHOOKS = {
-  RAG_CONTRATS: 'https://n8n.srv659987.hstgr.cloud/webhook/walteraAiAgent',
+  RAG_CONTRATS: 'https://n8n.srv659987.hstgr.cloud/webhook/walteraClients',
   ANALYSE_FICHIERS: 'https://n8n.srv659987.hstgr.cloud/webhook/d936ee38-2a31-4b2b-9f9c-a12f0063c858',
-  CONVENTIONS: '', // Pas encore configuré
+  CONVENTIONS: 'https://n8n.srv659987.hstgr.cloud/webhook/8a633c3a-75f7-4ea6-ad4a-609d648bea37',
 } as const;

@@ -1,22 +1,32 @@
 /**
- * Composant de chat générique réutilisable
- * Unifie ChatContrats et ChatConventions
+ * Composant de chat générique réutilisable avec historique des conversations
+ * Support du streaming et réponses JSON
+ * Design style WhatsApp avec sidebar
  */
 
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Send, Sparkles, Loader2, AlertCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { ArrowLeft, Send, Sparkles, AlertCircle, Smile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { useChat, type UseChatOptions } from '@/hooks/useChat';
+import ConversationsList from '@/components/chat/ConversationsList';
+import MessageBubble from '@/components/chat/MessageBubble';
+import { useChatWithStreaming } from '@/hooks/useChatWithStreaming';
 
 export interface ChatConfig {
   /** Titre principal du chat */
   title: string;
   /** Description sous le titre */
   description: string;
+  /** Type de service */
+  serviceType: 'rag_contrats' | 'conventions' | 'analyse_fichiers';
   /** Emoji/icône affiché dans le header */
   icon: string;
   /** Couleur du fond de l'icône (classe Tailwind) */
@@ -33,14 +43,18 @@ export interface ChatConfig {
   warningTitle?: string;
   /** Message du warning */
   warningMessage?: string;
+  /** URL du webhook */
+  webhookUrl: string;
 }
 
 interface ChatBaseProps {
   config: ChatConfig;
-  chatOptions?: UseChatOptions;
 }
 
-export default function ChatBase({ config, chatOptions }: ChatBaseProps) {
+export default function ChatBase({ config }: ChatBaseProps) {
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
   const {
     messages,
     input,
@@ -49,7 +63,20 @@ export default function ChatBase({ config, chatOptions }: ChatBaseProps) {
     messagesEndRef,
     handleSendMessage,
     handleSuggestionClick,
-  } = useChat(chatOptions);
+    loadConversation,
+    startNewConversation,
+  } = useChatWithStreaming({
+    serviceType: config.serviceType,
+    webhookUrl: config.webhookUrl,
+    onConversationCreated: (id) => setSelectedConversationId(id),
+  });
+
+  // Focus automatique sur l'input après envoi
+  useEffect(() => {
+    if (!isLoading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isLoading]);
 
   const {
     title,
@@ -64,67 +91,114 @@ export default function ChatBase({ config, chatOptions }: ChatBaseProps) {
     warningMessage = 'Ce service n\'est pas encore configuré.',
   } = config;
 
+  const handleSelectConversation = async (convId: string) => {
+    setSelectedConversationId(convId);
+    await loadConversation(convId);
+  };
+
+  const handleNewConversation = () => {
+    setSelectedConversationId(null);
+    startNewConversation();
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setInput(prev => prev + emoji);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  const commonEmojis = [
+    '😊', '😂', '❤️', '👍', '👎', '🙏', '💪', '🎉',
+    '✅', '❌', '⚠️', '📌', '💡', '🔥', '⭐', '👏'
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4">
           <Link
             to="/dashboard"
-            className="inline-flex items-center text-gray-600 hover:text-[#407b85] mb-4"
+            className="inline-flex items-center text-gray-600 hover:text-[#407b85] mb-3"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour au Dashboard
           </Link>
-          <div className="flex items-center space-x-3">
-            <div className={`p-3 rounded-xl ${iconBgColor} bg-opacity-10`}>
-              <span className="text-3xl">{icon}</span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              <p className="text-gray-600">{description}</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
+            <p className="text-gray-600">{description}</p>
           </div>
         </div>
 
         {/* Warning Banner */}
         {showWarning && (
-          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start space-x-3">
+          <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-yellow-900">{warningTitle}</h3>
-              <p className="text-sm text-yellow-700">{warningMessage}</p>
+              <h3 className="font-semibold text-yellow-900 text-sm">{warningTitle}</h3>
+              <p className="text-xs text-yellow-700">{warningMessage}</p>
             </div>
           </div>
         )}
 
-        {/* Chat Container */}
-        <Card className="h-[600px] flex flex-col">
-          <CardContent className="flex-1 flex flex-col p-0">
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.length === 0 ? (
-                <div className="text-center py-12">
-                  <Sparkles className="w-16 h-16 mx-auto text-[#407b85] mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {emptyStateMessage}
-                  </h3>
-                  <p className="text-gray-600 mb-6">{description}</p>
+        {/* Layout principal avec sidebar */}
+        <div className="flex gap-6 h-[calc(100vh-240px)] overflow-hidden">
+          {/* Sidebar des conversations - 320px fixe */}
+          <div className="w-80 flex-shrink-0 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <ConversationsList
+              serviceType={config.serviceType}
+              selectedConversationId={selectedConversationId}
+              onSelectConversation={handleSelectConversation}
+              onNewConversation={handleNewConversation}
+            />
+          </div>
 
-                  {/* Suggestions */}
-                  <div className="max-w-2xl mx-auto">
-                    <p className="text-sm font-medium text-gray-700 mb-3">
-                      Suggestions :
+          {/* Zone de chat principale */}
+          <div className="flex-1 flex flex-col bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            {/* Header de la conversation */}
+            <div className="bg-[#f0f2f5] border-b border-gray-300 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-full ${iconBgColor} bg-opacity-20`}>
+                    <span className="text-lg">{icon}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">
+                      {selectedConversationId ? `Assistant ${title}` : `Nouvelle conversation - ${title}`}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {selectedConversationId ? 'En ligne' : 'Commencez à taper pour créer une conversation'}
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center max-w-md">
+                    <div className="bg-white rounded-full p-6 inline-block mb-4 shadow-sm">
+                      <Sparkles className="w-12 h-12 text-[#407b85]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {emptyStateMessage}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-6">{description}</p>
+
+                    {/* Suggestions */}
+                    <div className="space-y-2">
                       {suggestions.map((suggestion, index) => (
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(suggestion)}
-                          className="p-3 text-left text-sm bg-white border border-gray-200 rounded-lg hover:border-[#407b85] hover:bg-[#407b85]/5 transition-colors"
+                          className="w-full p-3 text-left text-sm bg-white border border-gray-200 rounded-lg hover:border-[#407b85] hover:shadow-md transition-all"
                         >
+                          <Sparkles className="w-4 h-4 inline mr-2 text-[#407b85]" />
                           {suggestion}
                         </button>
                       ))}
@@ -134,35 +208,16 @@ export default function ChatBase({ config, chatOptions }: ChatBaseProps) {
               ) : (
                 <>
                   {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                          message.role === 'user'
-                            ? 'bg-[#407b85] text-white'
-                            : 'bg-white border border-gray-200 text-gray-900'
-                        }`}
-                      >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                        <p
-                          className={`text-xs mt-1 ${
-                            message.role === 'user' ? 'text-white/70' : 'text-gray-500'
-                          }`}
-                        >
-                          {message.timestamp.toLocaleTimeString('fr-FR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      </div>
-                    </div>
+                    <MessageBubble key={message.id} message={message} />
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
-                        <Loader2 className="w-5 h-5 animate-spin text-[#407b85]" />
+                      <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-5 py-3 shadow-sm">
+                        <div className="flex gap-1.5">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -171,28 +226,62 @@ export default function ChatBase({ config, chatOptions }: ChatBaseProps) {
               )}
             </div>
 
-            {/* Input */}
-            <div className="border-t border-gray-200 p-4">
-              <div className="flex space-x-2">
-                <Input
+            {/* Zone de saisie */}
+            <div className="bg-[#f0f2f5] border-t border-gray-300 p-4">
+              <div className="flex items-center bg-white rounded-lg pl-1 pr-2 py-1 shadow-sm">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-500 hover:text-gray-700 h-10 w-10 flex-shrink-0"
+                      type="button"
+                    >
+                      <Smile className="w-5 h-5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-2" align="start">
+                    <div className="grid grid-cols-8 gap-1">
+                      {commonEmojis.map((emoji, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleEmojiSelect(emoji)}
+                          className="text-2xl hover:bg-gray-100 rounded p-1 transition-colors"
+                          type="button"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                <Textarea
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
                   placeholder={placeholder}
-                  className="flex-1"
+                  className="flex-1 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px] max-h-[120px] px-2 py-2.5"
+                  rows={1}
                   disabled={isLoading}
                 />
                 <Button
                   onClick={() => handleSendMessage()}
                   disabled={!input.trim() || isLoading}
-                  className="bg-[#407b85] hover:bg-[#407b85]/90"
+                  size="icon"
+                  className="bg-[#407b85] hover:bg-[#407b85]/90 rounded-full h-10 w-10 flex-shrink-0 ml-2"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </main>
 
       <Footer />

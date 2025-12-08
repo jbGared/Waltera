@@ -129,7 +129,7 @@ export default function DevisFormContent() {
   // Page d'introduction avec consentement RGPD
   if (!showForm) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl">
         <Card className="shadow-lg">
           <CardHeader className="bg-gradient-to-r from-[#407b85]/5 to-transparent">
             <CardTitle className="text-2xl text-gray-900">
