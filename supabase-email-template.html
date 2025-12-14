@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réinitialisation de votre mot de passe - WALTERA</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+    <style>
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                padding: 20px !important;
+            }
+            .content {
+                padding: 30px 20px !important;
+            }
+            .button {
+                display: block !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f3f4f6;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07); overflow: hidden;">
+                    <!-- Header avec logo WALTERA -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #5A949E 0%, #3E7A84 100%); padding: 40px; text-align: center;">
+                            <!-- Logo SVG simplifié pour l'email -->
+                            <div style="display: inline-block; vertical-align: middle;">
+                                <div style="width: 60px; height: 60px; border: 2px solid white; border-radius: 50%; display: inline-block; position: relative; margin-right: 20px;">
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; font-weight: bold;">W</div>
+                                </div>
+                                <div style="display: inline-block; vertical-align: middle; text-align: left;">
+                                    <h1 style="margin: 0; color: white; font-size: 28px; font-weight: bold; letter-spacing: 1px;">WALTERA</h1>
+                                    <p style="margin: 0; color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 500; letter-spacing: 2px;">CONSEIL & ASSURANCES</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Contenu principal -->
+                    <tr>
+                        <td class="content" style="padding: 40px;">
+                            <h2 style="color: #111827; font-size: 24px; font-weight: bold; margin: 0 0 20px 0;">
+                                Réinitialisation de votre mot de passe
+                            </h2>
+
+                            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                                Bonjour,
+                            </p>
+
+                            <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+                                Vous avez demandé la réinitialisation de votre mot de passe pour votre compte WALTERA.
+                                Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :
+                            </p>
+
+                            <!-- Bouton CTA -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="padding: 30px 0;">
+                                        <a href="{{ .ConfirmationURL }}"
+                                           class="button"
+                                           style="display: inline-block;
+                                                  padding: 14px 32px;
+                                                  background-color: #3E7A84;
+                                                  color: white;
+                                                  text-decoration: none;
+                                                  font-size: 16px;
+                                                  font-weight: 600;
+                                                  border-radius: 8px;
+                                                  transition: background-color 0.3s;">
+                                            Réinitialiser mon mot de passe
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Sécurité -->
+                            <div style="background-color: #fef3c7; border-radius: 8px; padding: 16px; margin: 30px 0;">
+                                <p style="color: #92400e; font-size: 14px; line-height: 1.5; margin: 0;">
+                                    <strong>🔒 Sécurité :</strong> Ce lien est valable pendant 1 heure.
+                                    Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email en toute sécurité.
+                                </p>
+                            </div>
+
+                            <!-- Lien alternatif -->
+                            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 20px 0;">
+                                Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :
+                            </p>
+
+                            <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; word-break: break-all;">
+                                <code style="color: #3E7A84; font-size: 12px;">{{ .ConfirmationURL }}</code>
+                            </div>
+
+                            <!-- Conseils de sécurité -->
+                            <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
+                                <h3 style="color: #374151; font-size: 16px; font-weight: 600; margin: 0 0 15px 0;">
+                                    Conseils pour un mot de passe sécurisé :
+                                </h3>
+                                <ul style="color: #6b7280; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px;">
+                                    <li>Utilisez au moins 8 caractères</li>
+                                    <li>Mélangez majuscules, minuscules et chiffres</li>
+                                    <li>Ajoutez des caractères spéciaux (@, #, !, etc.)</li>
+                                    <li>Évitez les informations personnelles</li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0;">
+                                Besoin d'aide ? Contactez notre support à
+                                <a href="mailto:support@waltera.fr" style="color: #3E7A84; text-decoration: none;">support@waltera.fr</a>
+                            </p>
+
+                            <p style="color: #9ca3af; font-size: 12px; margin: 10px 0 0 0;">
+                                © 2025 WALTERA - Conseil & Assurances. Tous droits réservés.
+                            </p>
+
+                            <p style="color: #9ca3af; font-size: 12px; margin: 10px 0 0 0;">
+                                Cet email a été envoyé automatiquement, merci de ne pas y répondre.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

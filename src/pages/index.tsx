@@ -5,6 +5,8 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 
 // Lazy load pages for code splitting
 const Login = lazy(() => import('./Login'))
+const ForgotPassword = lazy(() => import('./ForgotPassword'))
+const ResetPassword = lazy(() => import('./ResetPassword'))
 const Dashboard = lazy(() => import('./Dashboard'))
 const Tarificateur = lazy(() => import('./Tarificateur'))
 const Conversations = lazy(() => import('./Conversations'))
@@ -41,6 +43,8 @@ export default function Pages() {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Redirect root based on auth status */}
         <Route path="/" element={<RootRedirect />} />
