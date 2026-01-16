@@ -1,11 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Lock, Loader2, CheckCircle, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
+
+// Traduction des messages d'erreur Supabase Auth
+function translateSupabaseError(message: string): string {
+  const translations: Record<string, string> = {
+    'New password should be different from the old password.': 'Le nouveau mot de passe doit être différent de l\'ancien.',
+    'New password should be different from the old password': 'Le nouveau mot de passe doit être différent de l\'ancien.',
+    'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
+    'Password should be at least 6 characters.': 'Le mot de passe doit contenir au moins 6 caractères.',
+    'Unable to validate email address: invalid format': 'Format d\'adresse email invalide.',
+    'User not found': 'Utilisateur non trouvé.',
+    'Invalid login credentials': 'Identifiants de connexion invalides.',
+    'Email not confirmed': 'Adresse email non confirmée.',
+    'Token has expired or is invalid': 'Le lien a expiré ou est invalide.',
+    'Auth session missing!': 'Session expirée. Veuillez demander un nouveau lien de réinitialisation.',
+  };
+
+  return translations[message] || message;
+}
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -44,13 +63,45 @@ export default function ResetPassword() {
     }
   };
 
-  const validatePassword = () => {
-    if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères');
-      return false;
-    }
-    if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+  // Validation de la politique de mot de passe (identique à Profile.tsx)
+  const passwordValidation = useMemo(() => {
+    return {
+      minLength: password.length >= 12,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+      passwordsMatch: password === confirmPassword && password.length > 0,
+    };
+  }, [password, confirmPassword]);
+
+  // Calcul du score de robustesse (0-100)
+  const passwordStrength = useMemo(() => {
+    const { minLength, hasUppercase, hasLowercase, hasNumber, hasSpecial } = passwordValidation;
+    const checks = [minLength, hasUppercase, hasLowercase, hasNumber, hasSpecial];
+    const passedChecks = checks.filter(Boolean).length;
+
+    let score = passedChecks * 20;
+
+    // Bonus pour longueur supplémentaire
+    if (password.length >= 16) score = Math.min(100, score + 10);
+    if (password.length >= 20) score = Math.min(100, score + 10);
+
+    return score;
+  }, [passwordValidation, password]);
+
+  const getStrengthLabel = (score: number) => {
+    if (score < 40) return { label: 'Faible', color: 'text-red-600' };
+    if (score < 60) return { label: 'Moyen', color: 'text-orange-600' };
+    if (score < 80) return { label: 'Bon', color: 'text-yellow-600' };
+    return { label: 'Excellent', color: 'text-green-600' };
+  };
+
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
+
+  const validatePasswordForm = () => {
+    if (!isPasswordValid) {
+      setError('Le mot de passe ne respecte pas la politique de sécurité');
       return false;
     }
     return true;
@@ -60,7 +111,7 @@ export default function ResetPassword() {
     e.preventDefault();
     setError(null);
 
-    if (!validatePassword()) {
+    if (!validatePasswordForm()) {
       return;
     }
 
@@ -80,24 +131,12 @@ export default function ResetPassword() {
         navigate('/login');
       }, 3000);
     } catch (err: any) {
-      setError(err.message || 'Une erreur est survenue lors de la réinitialisation');
+      const errorMessage = err.message || 'Une erreur est survenue lors de la réinitialisation';
+      setError(translateSupabaseError(errorMessage));
     } finally {
       setIsLoading(false);
     }
   };
-
-  const getPasswordStrength = () => {
-    if (password.length === 0) return { label: '', color: '' };
-    if (password.length < 6) return { label: 'Très faible', color: 'text-red-600' };
-    if (password.length < 8) return { label: 'Faible', color: 'text-orange-600' };
-    if (password.length < 12) return { label: 'Moyen', color: 'text-yellow-600' };
-    if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(password)) {
-      return { label: 'Fort', color: 'text-green-600' };
-    }
-    return { label: 'Bon', color: 'text-blue-600' };
-  };
-
-  const passwordStrength = getPasswordStrength();
 
   if (!isValidSession) {
     return (
@@ -196,30 +235,30 @@ export default function ResetPassword() {
 
           {/* Conseils de sécurité */}
           <div className="space-y-4 mt-12">
-            <h3 className="text-2xl font-bold text-white">Créez un mot de passe sécurisé</h3>
+            <h3 className="text-2xl font-bold text-white">Politique de mot de passe</h3>
             <p className="text-white/90 text-lg leading-relaxed">
-              Pour protéger votre compte, suivez ces recommandations :
+              Votre mot de passe doit respecter les critères suivants :
             </p>
             <ul className="space-y-3 mt-8">
               <li className="flex items-start space-x-3">
                 <span className="text-white/70 mt-0.5">•</span>
-                <p className="text-white/90">Au moins 8 caractères</p>
+                <p className="text-white/90">Au moins 12 caractères</p>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-white/70 mt-0.5">•</span>
-                <p className="text-white/90">Mélangez majuscules et minuscules</p>
+                <p className="text-white/90">Au moins une lettre majuscule</p>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-white/70 mt-0.5">•</span>
-                <p className="text-white/90">Incluez des chiffres et caractères spéciaux</p>
+                <p className="text-white/90">Au moins une lettre minuscule</p>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-white/70 mt-0.5">•</span>
-                <p className="text-white/90">Évitez les mots du dictionnaire</p>
+                <p className="text-white/90">Au moins un chiffre</p>
               </li>
               <li className="flex items-start space-x-3">
                 <span className="text-white/70 mt-0.5">•</span>
-                <p className="text-white/90">N'utilisez pas d'informations personnelles</p>
+                <p className="text-white/90">Au moins un caractère spécial (!@#$%...)</p>
               </li>
             </ul>
           </div>
@@ -290,7 +329,7 @@ export default function ResetPassword() {
                       <Input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
+                        placeholder="••••••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 pr-10 h-12 border-gray-300"
@@ -305,10 +344,18 @@ export default function ResetPassword() {
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                    {password && (
-                      <p className={`text-sm ${passwordStrength.color}`}>
-                        Force du mot de passe : {passwordStrength.label}
-                      </p>
+
+                    {/* Indicateur de robustesse */}
+                    {password.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500">Robustesse du mot de passe</span>
+                          <span className={`font-medium ${getStrengthLabel(passwordStrength).color}`}>
+                            {getStrengthLabel(passwordStrength).label}
+                          </span>
+                        </div>
+                        <Progress value={passwordStrength} className="h-2" />
+                      </div>
                     )}
                   </div>
 
@@ -322,7 +369,7 @@ export default function ResetPassword() {
                       <Input
                         id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
+                        placeholder="••••••••••••"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className="pl-10 pr-10 h-12 border-gray-300"
@@ -337,18 +384,44 @@ export default function ResetPassword() {
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
-                    {confirmPassword && password !== confirmPassword && (
-                      <p className="text-sm text-red-600">
-                        Les mots de passe ne correspondent pas
-                      </p>
-                    )}
+                  </div>
+
+                  {/* Politique de mot de passe */}
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    <p className="text-xs font-medium text-gray-700 mb-2">Politique de mot de passe :</p>
+                    <div className="grid grid-cols-1 gap-1.5 text-xs">
+                      <div className={`flex items-center gap-2 ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                        {passwordValidation.minLength ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                        <span>Au moins 12 caractères</span>
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasUppercase ? 'text-green-600' : 'text-gray-500'}`}>
+                        {passwordValidation.hasUppercase ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                        <span>Au moins une majuscule</span>
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasLowercase ? 'text-green-600' : 'text-gray-500'}`}>
+                        {passwordValidation.hasLowercase ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                        <span>Au moins une minuscule</span>
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                        {passwordValidation.hasNumber ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                        <span>Au moins un chiffre</span>
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.hasSpecial ? 'text-green-600' : 'text-gray-500'}`}>
+                        {passwordValidation.hasSpecial ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                        <span>Au moins un caractère spécial (!@#$%...)</span>
+                      </div>
+                      <div className={`flex items-center gap-2 ${passwordValidation.passwordsMatch ? 'text-green-600' : 'text-gray-500'}`}>
+                        {passwordValidation.passwordsMatch ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                        <span>Les mots de passe correspondent</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Bouton de réinitialisation */}
                   <Button
                     type="submit"
                     className="w-full bg-[#3E7A84] hover:bg-[#2D5F67] text-white font-semibold h-12 text-base"
-                    disabled={isLoading || (!!confirmPassword && password !== confirmPassword)}
+                    disabled={isLoading || !isPasswordValid}
                   >
                     {isLoading ? (
                       <>

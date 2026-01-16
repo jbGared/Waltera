@@ -310,8 +310,11 @@ function generateEmailHtml(alerts: CcnAlert[], complianceAlerts: ComplianceAlert
           <!-- Header -->
           <tr>
             <td style="padding: 32px 32px 20px; text-align: center; background: linear-gradient(135deg, #5A949E 0%, #3E7A84 100%); border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 1px;">WALTERA</h1>
-              <p style="margin: 8px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 11px; letter-spacing: 2px;">CONSEIL & ASSURANCES</p>
+              <img src="https://waltera-staging.web.app/logWalteraBlanc.webp"
+                   alt="WALTERA - Conseil & Assurances"
+                   width="200"
+                   height="auto"
+                   style="max-width: 200px; height: auto; display: inline-block;" />
             </td>
           </tr>
 
