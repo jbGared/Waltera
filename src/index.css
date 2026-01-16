@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Neo-Editorial Premium Light Palette 2026 - WALTERA Brand */
+    --background: 210 20% 98%;
+    --foreground: 200 30% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 200 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 200 30% 15%;
+    /* #427b85 = hsl(188, 34%, 39%) */
+    --primary: 188 34% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 188 25% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 200 15% 93%;
+    --muted-foreground: 200 10% 45%;
+    --accent: 188 34% 39%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 200 15% 85%;
+    --input: 200 15% 85%;
+    --ring: 188 34% 39%;
+    --radius: 0.75rem;
+
+    /* Custom Colors - WALTERA Brand */
+    --waltera: 188 34% 39%;
+    --waltera-light: 188 30% 55%;
+    --waltera-dark: 188 38% 30%;
+    --gold: 40 55% 50%;
+    --cream: 45 30% 97%;
+    --glass-bg: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 200 30% 8%;
+    --foreground: 210 40% 98%;
+    --card: 200 30% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 200 30% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 188 40% 50%;
+    --primary-foreground: 200 30% 8%;
+    --secondary: 188 35% 45%;
+    --secondary-foreground: 200 30% 8%;
+    --muted: 200 25% 15%;
+    --muted-foreground: 200 15% 60%;
+    --accent: 188 40% 50%;
+    --accent-foreground: 200 30% 8%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 200 25% 20%;
+    --input: 200 25% 20%;
+    --ring: 188 40% 50%;
+
+    --waltera: 188 40% 50%;
+    --waltera-light: 188 35% 60%;
+    --waltera-dark: 188 40% 35%;
+    --gold: 40 60% 58%;
+    --cream: 200 20% 12%;
+    --glass-bg: 200 25% 12%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  /* Subtle grain texture overlay - very light */
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.012;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* Premium Glass Card - Light Version */
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--glass-bg) / 0.98) 0%,
+      hsl(var(--glass-bg) / 0.92) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--border) / 0.7);
+    box-shadow:
+      0 1px 2px hsl(var(--foreground) / 0.03),
+      0 4px 16px -4px hsl(var(--foreground) / 0.06),
+      inset 0 1px 0 hsl(0 0% 100% / 0.7);
+  }
+
+  .glass-card:hover {
+    border-color: hsl(var(--waltera) / 0.35);
+    box-shadow:
+      0 1px 2px hsl(var(--foreground) / 0.03),
+      0 8px 32px -8px hsl(var(--waltera) / 0.18),
+      inset 0 1px 0 hsl(0 0% 100% / 0.9);
+  }
+
+  /* Mesh Gradient Background - Light Version with WALTERA colors */
+  .mesh-gradient {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 40%, hsl(var(--waltera) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 85% 15%, hsl(var(--waltera-light) / 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 60% at 60% 85%, hsl(var(--waltera) / 0.04) 0%, transparent 50%),
+      linear-gradient(180deg, hsl(var(--cream)) 0%, hsl(var(--background)) 100%);
+  }
+
+  /* WALTERA Shimmer Text */
+  .text-shimmer {
+    background: linear-gradient(
+      120deg,
+      hsl(var(--waltera)) 0%,
+      hsl(var(--waltera-light)) 25%,
+      hsl(var(--waltera)) 50%,
+      hsl(var(--waltera-light)) 75%,
+      hsl(var(--waltera)) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer-text 4s ease-in-out infinite;
+  }
+
+  /* Glow Effects */
+  .glow-waltera {
+    box-shadow:
+      0 0 20px hsl(var(--waltera) / 0.12),
+      0 0 40px hsl(var(--waltera) / 0.06);
+  }
+
+  .glow-gold {
+    box-shadow:
+      0 0 20px hsl(var(--gold) / 0.12),
+      0 0 40px hsl(var(--gold) / 0.06);
+  }
+
+  /* Service Card Gradient Borders */
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--waltera) / 0.4) 0%,
+      transparent 50%,
+      hsl(var(--waltera-light) / 0.25) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .gradient-border:hover::before {
+    opacity: 1;
+  }
+
+  /* Premium Card Shadow */
+  .shadow-premium {
+    box-shadow:
+      0 1px 2px hsl(var(--foreground) / 0.02),
+      0 2px 4px hsl(var(--foreground) / 0.02),
+      0 4px 8px hsl(var(--foreground) / 0.02),
+      0 8px 16px hsl(var(--foreground) / 0.03);
+  }
+
+  .shadow-premium-hover {
+    box-shadow:
+      0 2px 4px hsl(var(--foreground) / 0.03),
+      0 4px 8px hsl(var(--foreground) / 0.03),
+      0 8px 16px hsl(var(--foreground) / 0.04),
+      0 16px 32px hsl(var(--foreground) / 0.04);
+  }
+}
+
+@layer utilities {
+  /* Staggered Animation Delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+
+  /* Animations */
+  @keyframes shimmer-text {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.65;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes slide-up-fade {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes blur-in {
+    0% {
+      opacity: 0;
+      filter: blur(6px);
+    }
+    100% {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  @keyframes draw-line {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-float {
+    animation: float 5s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3.5s ease-in-out infinite;
+  }
+
+  .animate-slide-up-fade {
+    animation: slide-up-fade 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  .animate-blur-in {
+    animation: blur-in 0.7s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Hover transforms */
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-3px);
+  }
+
+  .hover-scale {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.015);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.22);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.35);
+  }
+
+  /* Selection - WALTERA color */
+  ::selection {
+    background: hsl(var(--waltera) / 0.18);
+    color: hsl(var(--foreground));
+  }
+
+  /* Focus visible */
+  :focus-visible {
+    outline: 2px solid hsl(var(--waltera));
+    outline-offset: 2px;
+  }
+}

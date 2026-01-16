@@ -1,0 +1,221 @@
+{
+  "name": "NAS File Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "process-nas-file",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://waltera75.direct.quickconnect.to:5001/webapi/auth.cgi?api=SYNO.API.Auth&version=3&method=login&account={{ $env.NAS_USERNAME }}&passwd={{ $env.NAS_PASSWORD }}&session=FileStation&format=sid",
+        "options": {}
+      },
+      "id": "2",
+      "name": "NAS Auth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://waltera75.direct.quickconnect.to:5001/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&path={{ encodeURIComponent($('Webhook').item.json.file_path) }}&mode=download&_sid={{ $('NAS Auth').item.json.data.sid }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "3",
+      "name": "Download File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://tika.gared.fr/rmeta/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/octet-stream"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Tika Extract",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const tikaResponse = $input.all()[0].json;\nconst textContent = Array.isArray(tikaResponse) ? (tikaResponse.find(r => !r['X-TIKA:embedded_resource_path'])?.['X-TIKA:content'] || '') : (tikaResponse['X-TIKA:content'] || '');\nconst text = textContent.trim();\nconst webhook = $('Webhook').item.json;\nconst chunks = [];\nconst CHUNK_SIZE = 1000;\nconst OVERLAP = 200;\nif (text.length > 50) {\n  let start = 0;\n  while (start < text.length) {\n    let end = Math.min(start + CHUNK_SIZE, text.length);\n    if (end < text.length) {\n      const dot = text.lastIndexOf('.', end);\n      if (dot > start + CHUNK_SIZE / 2) end = dot + 1;\n    }\n    const chunk = text.slice(start, end).trim();\n    if (chunk.length > 0) {\n      chunks.push({ content: chunk, chunk_index: chunks.length, file_path: webhook.file_path, file_name: webhook.file_name, client_code: webhook.client_code, client_name: webhook.client_name, client_id: webhook.client_id, nas_file_id: webhook.nas_file_id });\n    }\n    start = end - OVERLAP;\n  }\n} else {\n  chunks.push({ content: '[Document: ' + webhook.file_name + ']', chunk_index: 0, file_path: webhook.file_path, file_name: webhook.file_name, client_code: webhook.client_code, client_name: webhook.client_name, client_id: webhook.client_id, nas_file_id: webhook.nas_file_id });\n}\nreturn chunks.map(c => ({ json: { ...c, total_chunks: chunks.length } }));"
+      },
+      "id": "5",
+      "name": "Chunk Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.MISTRAL_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'mistral-embed', input: [$json.content] }) }}",
+        "options": {}
+      },
+      "id": "6",
+      "name": "Mistral Embedding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://syxsacbciqwrahjdixuc.supabase.co/rest/v1/documents",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ content: $('Chunk Text').item.json.content, embedding: $json.data[0].embedding, metadata: { file_path: $('Chunk Text').item.json.file_path, file_name: $('Chunk Text').item.json.file_name, client_code: $('Chunk Text').item.json.client_code, client_name: $('Chunk Text').item.json.client_name, client_id: $('Chunk Text').item.json.client_id, source_type: 'nas', chunk_index: $('Chunk Text').item.json.chunk_index, total_chunks: $('Chunk Text').item.json.total_chunks } }) }}",
+        "options": {}
+      },
+      "id": "7",
+      "name": "Insert Document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://syxsacbciqwrahjdixuc.supabase.co/rest/v1/nas_files?id=eq.{{ $('Webhook').item.json.nas_file_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'processed', processed_at: new Date().toISOString() }) }}",
+        "options": {}
+      },
+      "id": "8",
+      "name": "Update Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, file: $('Webhook').item.json.file_name }) }}"
+      },
+      "id": "9",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{"node": "NAS Auth", "type": "main", "index": 0}]]
+    },
+    "NAS Auth": {
+      "main": [[{"node": "Download File", "type": "main", "index": 0}]]
+    },
+    "Download File": {
+      "main": [[{"node": "Tika Extract", "type": "main", "index": 0}]]
+    },
+    "Tika Extract": {
+      "main": [[{"node": "Chunk Text", "type": "main", "index": 0}]]
+    },
+    "Chunk Text": {
+      "main": [[{"node": "Mistral Embedding", "type": "main", "index": 0}]]
+    },
+    "Mistral Embedding": {
+      "main": [[{"node": "Insert Document", "type": "main", "index": 0}]]
+    },
+    "Insert Document": {
+      "main": [[{"node": "Update Status", "type": "main", "index": 0}]]
+    },
+    "Update Status": {
+      "main": [[{"node": "Respond", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
